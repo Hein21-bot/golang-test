@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"login_api/models"
+	"login_api/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -55,8 +56,16 @@ func UpdateUserInfo(c *gin.Context) {
 		return
 	}
 
+	// Hash the password from the newUser object
+	hashedPassword, err := utils.HashPassword(updateData.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+	updateData.Password = hashedPassword
+
 	// Update User Info table
-	userInfoQuery := `update user set FirstName = $firstname, LastName = $lastname, OrgName = $orgname, email = $email, phoneNo = $phoneNo, address = $address, city = $city, state = $state, zipcode = $zipcode, country = $country where id = $id`
+	userInfoQuery := `update user set FirstName = $firstname, LastName = $lastname, Password = $password, OrgName = $orgname, email = $email, phoneNo = $phoneNo, address = $address, city = $city, state = $state, zipcode = $zipcode, country = $country where id = $id`
 	userInfoParams := map[string]interface{}{
 		"id":        id,
 		"firstname": updateData.FirstName,
@@ -69,6 +78,7 @@ func UpdateUserInfo(c *gin.Context) {
 		"state":     updateData.State,
 		"zipcode":   updateData.ZipCode,
 		"country":   updateData.Country,
+		"password":  updateData.Password,
 	}
 
 	userInfoRes, err := DB.Query(userInfoQuery, userInfoParams)
