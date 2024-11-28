@@ -56,17 +56,10 @@ func UpdateUserInfo(c *gin.Context) {
 		return
 	}
 
-	// Hash the password from the newUser object
-	hashedPassword, err := utils.HashPassword(updateData.Password)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
-		return
-	}
-	updateData.Password = hashedPassword
-
 	// Update User Info table
-	userInfoQuery := `update user set first_name = $first_name, last_name = $last_name, password = $password, org_name = $org_name, email = $email, phone_number = $phone_number, address = $address, city = $city, state = $state, zip_code = $zip_code, country = $country where id = $id`
-	userInfoParams := map[string]interface{}{
+	query := `UPDATE user SET first_name = $first_name, last_name = $last_name, org_name = $org_name, email = $email, phone_number = $phone_number, address = $address, city = $city, state = $state, zip_code = $zip_code, country = $country`
+
+	params := map[string]interface{}{
 		"id":           id,
 		"first_name":   updateData.FirstName,
 		"last_name":    updateData.LastName,
@@ -78,10 +71,21 @@ func UpdateUserInfo(c *gin.Context) {
 		"state":        updateData.State,
 		"zip_code":     updateData.ZipCode,
 		"country":      updateData.Country,
-		"password":     updateData.Password,
 	}
 
-	userInfoRes, err := DB.Query(userInfoQuery, userInfoParams)
+	if updateData.Password != "" {
+		hashedPassword, err := utils.HashPassword(updateData.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+			return
+		}
+		query += `, password = $password`
+		params["password"] = hashedPassword
+	}
+
+	query += ` WHERE id = $id`
+
+	userInfoRes, err := DB.Query(query, params)
 	if err != nil {
 		fmt.Printf("Error updating user info record: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to user info record", "details": err.Error()})

@@ -104,7 +104,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	hashedPassword := userData["Password"].(string)
+	hashedPassword := userData["password"].(string)
 
 	// Example of checking the password (after you've retrieved the actual password to compare with)
 	if !utils.CheckPasswordHash(loginDetails.Password, hashedPassword) {
