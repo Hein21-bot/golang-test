@@ -38,5 +38,8 @@ func main() {
 	router.POST("/upload-profile", handlers.SaveProfileImage)
 	router.GET("/get-userInfo", handlers.GetUserInfo)
 	router.PUT("/update-userInfo", handlers.UpdateUserInfo)
+
+	router.GET("/get-products", handlers.GetProductData)
+
 	router.Run(":8080")
 }
