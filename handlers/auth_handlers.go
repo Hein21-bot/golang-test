@@ -25,19 +25,19 @@ func SignUp(c *gin.Context) {
 	}
 	newUser.Password = hashedPassword
 
-	query := `CREATE user SET FirstName = $firstname, LastName = $lastname, OrgName = $orgname, Email = $email, PhoneNo = $phoneno, Address = $address, City = $city, State = $state, ZipCode = $zipcode, Country = $country, Password = $password;`
+	query := `CREATE user SET first_name = $first_name, last_name = $last_name, org_name = $org_name, email = $email, phone_number = $phone_number, address = $address, city = $city, state = $state, zip_code = $zip_code, country = $country, password = $password;`
 	params := map[string]interface{}{
-		"firstname": newUser.FirstName,
-		"lastname":  newUser.LastName,
-		"orgname":   newUser.OrgName,
-		"email":     newUser.Email,
-		"phoneno":   newUser.PhoneNo,
-		"address":   newUser.Address,
-		"city":      newUser.City,
-		"state":     newUser.State,
-		"zipcode":   newUser.ZipCode,
-		"country":   newUser.Country,
-		"password":  newUser.Password,
+		"first_name":   newUser.FirstName,
+		"last_name":    newUser.LastName,
+		"org_name":     newUser.OrgName,
+		"email":        newUser.Email,
+		"phone_number": newUser.PhoneNo,
+		"address":      newUser.Address,
+		"city":         newUser.City,
+		"state":        newUser.State,
+		"zip_code":     newUser.ZipCode,
+		"country":      newUser.Country,
+		"password":     newUser.Password,
 	}
 
 	// Now executing the query with parameters
@@ -58,10 +58,10 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	query := `SELECT * FROM user WHERE FirstName = $firstname and LastName = $lastname ;`
+	query := `SELECT * FROM user WHERE first_name = $first_name and last_name = $last_name ;`
 	params := map[string]interface{}{
-		"firstname": loginDetails.FirstName,
-		"lastname":  loginDetails.LastName,
+		"first_name": loginDetails.FirstName,
+		"last_name":  loginDetails.LastName,
 	}
 
 	// Execute the query

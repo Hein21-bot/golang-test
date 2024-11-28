@@ -65,20 +65,20 @@ func UpdateUserInfo(c *gin.Context) {
 	updateData.Password = hashedPassword
 
 	// Update User Info table
-	userInfoQuery := `update user set FirstName = $firstname, LastName = $lastname, Password = $password, OrgName = $orgname, email = $email, phoneNo = $phoneNo, address = $address, city = $city, state = $state, zipcode = $zipcode, country = $country where id = $id`
+	userInfoQuery := `update user set first_name = $first_name, last_name = $last_name, password = $password, org_name = $org_name, email = $email, phone_number = $phone_number, address = $address, city = $city, state = $state, zip_code = $zip_code, country = $country where id = $id`
 	userInfoParams := map[string]interface{}{
-		"id":        id,
-		"firstname": updateData.FirstName,
-		"lastname":  updateData.LastName,
-		"orgname":   updateData.OrgName,
-		"email":     updateData.Email,
-		"phoneNo":   updateData.PhoneNo,
-		"address":   updateData.Address,
-		"city":      updateData.City,
-		"state":     updateData.State,
-		"zipcode":   updateData.ZipCode,
-		"country":   updateData.Country,
-		"password":  updateData.Password,
+		"id":           id,
+		"first_name":   updateData.FirstName,
+		"last_name":    updateData.LastName,
+		"org_name":     updateData.OrgName,
+		"email":        updateData.Email,
+		"phone_number": updateData.PhoneNo,
+		"address":      updateData.Address,
+		"city":         updateData.City,
+		"state":        updateData.State,
+		"zip_code":     updateData.ZipCode,
+		"country":      updateData.Country,
+		"password":     updateData.Password,
 	}
 
 	userInfoRes, err := DB.Query(userInfoQuery, userInfoParams)
