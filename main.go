@@ -40,6 +40,7 @@ func main() {
 	router.PUT("/update-userInfo", handlers.UpdateUserInfo)
 
 	router.GET("/get-products", handlers.GetProductData)
+	router.GET("/get-productsDetails", handlers.GetProductDetails)
 
 	router.Run(":8080")
 }
