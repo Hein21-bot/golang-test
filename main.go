@@ -42,5 +42,7 @@ func main() {
 	router.GET("/get-products", handlers.GetProductData)
 	router.GET("/get-productsDetails", handlers.GetProductDetails)
 
+	router.GET("/get-imageFile", handlers.ReadImageFile)
+
 	router.Run(":8080")
 }

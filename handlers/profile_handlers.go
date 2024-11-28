@@ -12,10 +12,16 @@ import (
 )
 
 func SaveProfileImage(c *gin.Context) {
-	// Parse the uploaded file
-	file, err := c.FormFile("image")
+	// Parse Multipart form to handle multiple file uploads
+	form, err := c.MultipartForm()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to upload image"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form"})
+		return
+	}
+
+	files, exists := form.File["images"]
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No images provided"})
 		return
 	}
 
@@ -27,29 +33,38 @@ func SaveProfileImage(c *gin.Context) {
 		return
 	}
 
-	// Validate the file type (only allow JPEG and PNG for this example)
+	var uploadedFiles []string
 	allowedExtensions := []string{".jpg", ".jpeg", ".png"}
-	ext := strings.ToLower(filepath.Ext(file.Filename))
-	if !contains(allowedExtensions, ext) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type. Only JPG and PNG are allowed"})
-		return
+
+	for _, file := range files {
+		// Validate the file type (only allow JPEG and PNG)
+		ext := strings.ToLower(filepath.Ext(file.Filename))
+		if !contains(allowedExtensions, ext) {
+			continue // Skip invalid file types
+		}
+
+		// Generate a unique file name to avoid conflicts
+		newFileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+		filePath := filepath.Join(profileFolder, newFileName)
+
+		// Save the file to the profile folder
+		if err := c.SaveUploadedFile(file, filePath); err != nil {
+			continue // Skip files that fail to save
+		}
+
+		// Append the saved file path to the list
+		uploadedFiles = append(uploadedFiles, filePath)
 	}
 
-	// Generate a unique file name to avoid conflicts
-	newFileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
-	filePath := filepath.Join(profileFolder, newFileName)
-
-	// Save the file to the profile folder
-	if err := c.SaveUploadedFile(file, filePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
-		return
+	// Return the file paths in the response
+	if len(uploadedFiles) == 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save any images"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Images uploaded successfully",
+			"paths":   uploadedFiles,
+		})
 	}
-
-	// Return the file path in the response
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Image uploaded successfully",
-		"path":    filePath,
-	})
 }
 
 // Helper function to check if a slice contains a specific string
